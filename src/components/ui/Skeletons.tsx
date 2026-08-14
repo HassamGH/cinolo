@@ -24,13 +24,9 @@ export function HeroSkeleton() {
 
 export function GridSkeleton({ count = 12 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+    <div className="flex flex-wrap gap-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i}>
-          <div className="aspect-2/3 animate-pulse rounded-lg bg-white/10" />
-          <div className="mt-2 h-3.5 w-4/5 animate-pulse rounded bg-white/10" />
-          <div className="mt-1.5 h-3 w-2/5 animate-pulse rounded bg-white/10" />
-        </div>
+        <CardSkeleton key={i} />
       ))}
     </div>
   )

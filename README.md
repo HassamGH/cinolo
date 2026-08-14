@@ -1,4 +1,4 @@
-# Zeno
+# Cinolo
 
 A cinematic, single-page movies & TV streaming interface. Metadata (search,
 details, cast, seasons, episodes, recommendations, artwork) comes from
@@ -11,7 +11,7 @@ real stream from a TMDB id with no API key required.
 > parameters recognized). TMDB supplies everything else, which is why the app
 > talks to both. Vidcore ships its own complete player UI (play/pause,
 > progress, volume, fullscreen, quality, subtitles, its own "Next Episode")
-> inside that page — Zeno adds no chrome of its own on top of it. Its player
+> inside that page — Cinolo adds no chrome of its own on top of it. Its player
 > also actively refuses to run inside a sandboxed iframe, so the embed is
 > intentionally left unsandboxed; a working player takes priority over
 > defending against a hijacked-redirect edge case sandboxing would prevent.
@@ -25,7 +25,7 @@ src/
     tmdb.ts            searchMoviesAndSeries, getMovieDetails, getSeriesDetails,
                         getSeriesSeasons, getEpisodes, getCast,
                         getRecommendedFor, imageUrl, ...
-    tmdbRaw.ts         minimal typed shapes for the TMDB fields Zeno reads
+    tmdbRaw.ts         minimal typed shapes for the TMDB fields Cinolo reads
     vidcore.ts         getVideoSource(source) -> Vidcore watch-page URL
   context/
     NavigationContext.tsx   SPA view-state stack, synced to the URL and
@@ -41,7 +41,7 @@ src/
     Header, Hero, ContentRow, MediaCard, SearchModal, SearchResultItem,
     MovieDetail, SeriesDetail, DetailHeader, SeasonSelector, EpisodeList,
     CastList, SimilarSection ("You may like"), VideoPlayer
-    ui/  Dropdown, TopLoadingBar, Skeletons, Placeholder, RatingBadge, ZenoMark
+    ui/  Dropdown, TopLoadingBar, Skeletons, Placeholder, RatingBadge, CinoloMark
   utils/
     format.ts           runtime/rating/meta-line formatting
     styleConstants.ts    shared Tailwind arbitrary-value strings (e.g. the

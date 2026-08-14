@@ -26,9 +26,9 @@ export function SimilarSection({ id, mediaType, onSelect }: SimilarSectionProps)
       {loading && <GridSkeleton />}
 
       {!loading && data && data.length > 0 && (
-        <div className="flex flex-wrap gap-4">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
           {data.slice(0, 18).map((item) => (
-            <MediaCard key={`${item.mediaType}-${item.id}`} item={item} onSelect={onSelect} />
+            <MediaCard key={`${item.mediaType}-${item.id}`} item={item} onSelect={onSelect} className="w-full" />
           ))}
         </div>
       )}

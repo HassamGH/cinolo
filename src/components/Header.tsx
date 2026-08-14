@@ -1,6 +1,6 @@
 import { Search } from 'lucide-react'
 import { useNavigation } from '../context/NavigationContext'
-import { ZenoMark } from './ui/ZenoMark'
+import { CinoloMark } from './ui/CinoloMark'
 
 interface HeaderProps {
   onNavigate: (target: 'home' | 'movies' | 'tv') => void
@@ -18,10 +18,10 @@ export function Header({ onNavigate }: HeaderProps) {
           type="button"
           onClick={() => onNavigate('home')}
           className={`flex cursor-pointer items-center gap-2.5 ${FOCUS_RING}`}
-          aria-label="Zeno home"
+          aria-label="Cinolo home"
         >
-          <ZenoMark className="h-8 w-8 shrink-0" />
-          <span className="text-xl font-bold tracking-tight text-white">ZENO</span>
+          <CinoloMark className="h-8 w-8 shrink-0" />
+          <span className="text-xl font-bold tracking-tight text-white">CINOLO</span>
         </button>
 
         <div className="flex items-center gap-6 sm:gap-8">

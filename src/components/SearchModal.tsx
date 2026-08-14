@@ -92,7 +92,7 @@ export function SearchModal({ open }: { open: boolean }) {
       onClick={closeSearch}
       role="dialog"
       aria-modal="true"
-      aria-label="Search Zeno"
+      aria-label="Search Cinolo"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -145,7 +145,7 @@ export function SearchModal({ open }: { open: boolean }) {
           {loading && (
             <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted">
               <Search size={28} className="opacity-40" />
-              <p>Searching Zeno...</p>
+              <p>Searching Cinolo...</p>
             </div>
           )}
 

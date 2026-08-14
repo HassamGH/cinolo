@@ -1,6 +1,6 @@
-export function CardSkeleton() {
+export function CardSkeleton({ className = '' }: { className?: string }) {
   return (
-    <div className="w-36 shrink-0 sm:w-44">
+    <div className={`shrink-0 ${className || 'w-36 sm:w-44'}`}>
       <div className="aspect-2/3 animate-pulse rounded-lg bg-white/10" />
       <div className="mt-2 h-3.5 w-4/5 animate-pulse rounded bg-white/10" />
       <div className="mt-1.5 h-3 w-2/5 animate-pulse rounded bg-white/10" />
@@ -24,9 +24,9 @@ export function HeroSkeleton() {
 
 export function GridSkeleton({ count = 12 }: { count?: number }) {
   return (
-    <div className="flex flex-wrap gap-4">
+    <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
       {Array.from({ length: count }).map((_, i) => (
-        <CardSkeleton key={i} />
+        <CardSkeleton key={i} className="w-full" />
       ))}
     </div>
   )

@@ -72,7 +72,7 @@ export function SeriesDetail({ id }: { id: number }) {
           onClick={back}
           className="cursor-pointer rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
-          Back to Zeno
+          Back to Cinolo
         </button>
       </div>
     )
@@ -96,7 +96,7 @@ export function SeriesDetail({ id }: { id: number }) {
 
   return (
     <div className="pb-20">
-      <DetailHeader details={details} onBack={back} onPlay={onHeaderPlay} playLoading={resolvingId === id} />
+      <DetailHeader details={details} onPlay={onHeaderPlay} playLoading={resolvingId === id} />
 
       <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
         <section id="episodes-section" className="mt-2 scroll-mt-24">

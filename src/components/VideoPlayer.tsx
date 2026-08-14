@@ -6,7 +6,7 @@ import type { PlayerSource } from '../types/media'
 
 // Vidcore's embed already ships a full player (playback controls, progress,
 // volume, fullscreen, quality, title, its own close/back chrome) — see
-// services/vidcore.ts. Zeno adds no chrome of its own on top: exit via
+// services/vidcore.ts. Cinolo adds no chrome of its own on top: exit via
 // Escape or the browser's back button (both wired in NavigationContext).
 export function VideoPlayer({ source }: { source: PlayerSource | null }) {
   const { closePlayer } = useNavigation()

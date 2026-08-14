@@ -1,4 +1,4 @@
-import { ArrowLeft, List, Play, Sparkles } from 'lucide-react'
+import { List, Play, Sparkles } from 'lucide-react'
 import { imageUrl } from '../services/tmdb'
 import { BackdropPlaceholder } from './ui/Placeholder'
 import { RatingBadge } from './ui/RatingBadge'
@@ -8,12 +8,11 @@ import type { MediaDetails } from '../types/media'
 
 interface DetailHeaderProps {
   details: MediaDetails
-  onBack: () => void
   onPlay: () => void
   playLoading?: boolean
 }
 
-export function DetailHeader({ details, onBack, onPlay, playLoading = false }: DetailHeaderProps) {
+export function DetailHeader({ details, onPlay, playLoading = false }: DetailHeaderProps) {
   const backdrop = imageUrl(details.backdropPath, 'original')
 
   const meta = formatMetaLine([
@@ -34,15 +33,6 @@ export function DetailHeader({ details, onBack, onPlay, playLoading = false }: D
       </div>
 
       <div className="relative z-10 mx-auto h-full max-w-[1600px]">
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label="Back"
-          className="absolute top-20 left-4 z-10 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md transition-colors hover:bg-black/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:left-8"
-        >
-          <ArrowLeft size={18} />
-        </button>
-
         <div className="flex h-full flex-col justify-end px-4 pb-10 sm:px-8 sm:pb-14">
           <div className="max-w-4xl">
             <h1 className="text-3xl leading-tight font-extrabold tracking-wide text-white uppercase drop-shadow-lg sm:text-5xl lg:text-6xl">

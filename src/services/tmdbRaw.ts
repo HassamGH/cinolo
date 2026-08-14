@@ -1,4 +1,4 @@
-// Minimal shapes for the fields of the TMDB v3 API responses that Zeno
+// Minimal shapes for the fields of the TMDB v3 API responses that Cinolo
 // actually reads. TMDB returns far more than this; we only type what we use.
 
 export interface RawGenre {

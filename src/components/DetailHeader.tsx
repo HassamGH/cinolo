@@ -23,7 +23,7 @@ export function DetailHeader({ details, onBack, onPlay, playLoading = false }: D
   ])
 
   return (
-    <div className="relative h-[52vh] min-h-[380px] w-full sm:h-[70vh]">
+    <div className="relative h-[52vh] min-h-95 w-full sm:h-[70vh]">
       <div className="absolute inset-0">
         {backdrop ? (
           <img src={backdrop} alt="" className="h-full w-full object-cover object-top" />

@@ -103,7 +103,7 @@ export function Hero({ candidates, onSelect }: HeroProps) {
 
   return (
     <section
-      className={`relative h-[68vh] min-h-[420px] w-full touch-pan-y overflow-hidden select-none sm:h-[86vh] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      className={`relative h-[68vh] min-h-105 w-full touch-pan-y overflow-hidden select-none sm:h-[86vh] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onPointerDown={onPointerDown}

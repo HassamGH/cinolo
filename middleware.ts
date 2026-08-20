@@ -1,4 +1,5 @@
 import { next } from '@vercel/edge';
+import { UNAUTHORIZED_PAGE } from './UNAUTHORIZED_PAGE';
 
 export const config = {
   // Protect everything except the PWA manifest/service worker/icons,
@@ -11,11 +12,11 @@ export const config = {
 const REALM = 'Cinolo';
 
 function unauthorized(): Response {
-  return new Response('Authentication required.', {
+  return new Response(UNAUTHORIZED_PAGE, {
     status: 401,
     headers: {
       'WWW-Authenticate': `Basic realm="${REALM}", charset="UTF-8"`,
-      'content-type': 'text/plain',
+      'content-type': 'text/html; charset=UTF-8',
       'cache-control': 'no-store',
     },
   });

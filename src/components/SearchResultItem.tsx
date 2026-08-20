@@ -1,7 +1,8 @@
-import { Info, Play } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { imageUrl } from '../services/tmdb'
 import { PosterPlaceholder } from './ui/Placeholder'
 import { RatingBadge } from './ui/RatingBadge'
+import { PlayButton } from './ui/PlayButton'
 import type { MediaSummary } from '../types/media'
 
 interface SearchResultItemProps {
@@ -9,9 +10,16 @@ interface SearchResultItemProps {
   onPlay: (item: MediaSummary) => void
   onSeeMore: (item: MediaSummary) => void
   playLoading?: boolean
+  isResuming?: boolean
 }
 
-export function SearchResultItem({ item, onPlay, onSeeMore, playLoading = false }: SearchResultItemProps) {
+export function SearchResultItem({
+  item,
+  onPlay,
+  onSeeMore,
+  playLoading = false,
+  isResuming = false,
+}: SearchResultItemProps) {
   const poster = imageUrl(item.posterPath, 'w185')
 
   return (
@@ -35,20 +43,17 @@ export function SearchResultItem({ item, onPlay, onSeeMore, playLoading = false 
         {item.overview && <p className="mt-1.5 line-clamp-2 hidden text-xs text-muted sm:block">{item.overview}</p>}
 
         <div className="mt-3 flex items-center gap-2">
-          <button
-            type="button"
+          <PlayButton
+            label={isResuming ? 'Resume' : 'Play'}
             onClick={() => onPlay(item)}
             disabled={playLoading}
-            aria-label={`Play ${item.title}`}
-            className="flex cursor-pointer items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-semibold text-black transition-transform hover:scale-105 focus-visible:outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            <Play size={12} className="fill-black" />
-            Play
-          </button>
+            ariaLabel={`${isResuming ? 'Resume' : 'Play'} ${item.title}`}
+            compact
+          />
           <button
             type="button"
             onClick={() => onSeeMore(item)}
-            className="flex cursor-pointer items-center gap-1 rounded-full border border-white/20 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-none"
+            className="flex cursor-pointer items-center gap-1 rounded border border-white/20 px-3 py-1 text-xs font-semibold text-white transition-transform hover:scale-105 hover:bg-white/10 focus-visible:outline-none active:scale-95"
           >
             <Info size={12} />
             See More

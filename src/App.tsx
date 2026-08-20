@@ -1,11 +1,16 @@
+import { Suspense, lazy } from 'react'
 import { NavigationProvider, useNavigation } from './context/NavigationContext'
 import { LoadingBarProvider } from './context/LoadingBarContext'
+import { ContinueWatchingProvider } from './context/ContinueWatchingContext'
 import { Header } from './components/Header'
 import { HomePage } from './components/HomePage'
-import { MovieDetail } from './components/MovieDetail'
-import { SeriesDetail } from './components/SeriesDetail'
-import { SearchModal } from './components/SearchModal'
 import { VideoPlayer } from './components/VideoPlayer'
+
+// Split out of the main bundle: each is only needed once its screen/modal is
+// actually opened, not on initial load.
+const MovieDetail = lazy(() => import('./components/MovieDetail').then((m) => ({ default: m.MovieDetail })))
+const SeriesDetail = lazy(() => import('./components/SeriesDetail').then((m) => ({ default: m.SeriesDetail })))
+const SearchModal = lazy(() => import('./components/SearchModal').then((m) => ({ default: m.SearchModal })))
 
 function scrollToRow(id: string) {
   requestAnimationFrame(() => {
@@ -37,11 +42,15 @@ function AppShell() {
 
       <main>
         {state.screen.name === 'home' && <HomePage />}
-        {state.screen.name === 'movie' && <MovieDetail key={state.screen.id} id={state.screen.id} />}
-        {state.screen.name === 'series' && <SeriesDetail key={state.screen.id} id={state.screen.id} />}
+        <Suspense fallback={null}>
+          {state.screen.name === 'movie' && <MovieDetail key={state.screen.id} id={state.screen.id} />}
+          {state.screen.name === 'series' && <SeriesDetail key={state.screen.id} id={state.screen.id} />}
+        </Suspense>
       </main>
 
-      <SearchModal open={state.searchOpen} />
+      <Suspense fallback={null}>
+        <SearchModal open={state.searchOpen} />
+      </Suspense>
       <VideoPlayer source={state.player} />
     </div>
   )
@@ -50,9 +59,11 @@ function AppShell() {
 function App() {
   return (
     <LoadingBarProvider>
-      <NavigationProvider>
-        <AppShell />
-      </NavigationProvider>
+      <ContinueWatchingProvider>
+        <NavigationProvider>
+          <AppShell />
+        </NavigationProvider>
+      </ContinueWatchingProvider>
     </LoadingBarProvider>
   )
 }

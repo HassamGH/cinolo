@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
-import { Info, Play } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { getMovieDetails, getSeriesDetails, imageUrl } from '../services/tmdb'
 import { usePlayMedia } from '../hooks/usePlayMedia'
 import { formatMetaLine, formatRuntime } from '../utils/format'
 import { HeroSkeleton } from './ui/Skeletons'
+import { PlayButton } from './ui/PlayButton'
 import { BACKDROP_GRADIENT_CLASS } from '../utils/styleConstants'
 import type { MediaDetails, MediaSummary } from '../types/media'
 
@@ -21,7 +22,7 @@ export function Hero({ candidates, onSelect }: HeroProps) {
   const [index, setIndex] = useState(0)
   const [details, setDetails] = useState<MediaDetails | null>(null)
   const [paused, setPaused] = useState(false)
-  const { play, resolvingId } = usePlayMedia()
+  const { play, isResuming, resolvingId } = usePlayMedia()
   const dragStartX = useRef<number | null>(null)
   const [isDragging, setIsDragging] = useState(false)
 
@@ -69,7 +70,7 @@ export function Hero({ candidates, onSelect }: HeroProps) {
   if (!candidates) return <HeroSkeleton />
   if (!active) return null
 
-  const backdrop = imageUrl(active.backdropPath, 'original')
+  const backdrop = imageUrl(active.backdropPath, 'w1280')
   const meta = formatMetaLine([
     active.year,
     details ? formatRuntime(details.runtimeMinutes) : null,
@@ -137,19 +138,15 @@ export function Hero({ candidates, onSelect }: HeroProps) {
           )}
 
           <div className="mt-6 flex items-center gap-3">
-            <button
-              type="button"
+            <PlayButton
+              label={isResuming(active) ? 'Resume' : 'Play'}
               onClick={() => play(active)}
               disabled={resolvingId === active.id}
-              className="flex cursor-pointer items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              <Play size={16} className="fill-black" />
-              Play
-            </button>
+            />
             <button
               type="button"
               onClick={() => onSelect(active)}
-              className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-transform hover:scale-105 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95"
+              className="flex cursor-pointer items-center gap-1.5 rounded border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-transform hover:scale-105 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95"
             >
               <Info size={16} />
               More Info

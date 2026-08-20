@@ -42,8 +42,8 @@ export function EpisodeList({ episodes, loading, error, onPlay }: EpisodeListPro
                 <BackdropPlaceholder className="h-full w-full" />
               )}
               <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/40 group-hover:opacity-100">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-black">
-                  <Play size={16} className="ml-0.5 fill-black" />
+                <span className="flex h-10 w-10 items-center justify-center rounded bg-white text-black">
+                  <Play size={16} className="ml-0.5" />
                 </span>
               </div>
             </div>

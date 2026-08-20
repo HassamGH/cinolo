@@ -11,4 +11,18 @@
   --color-border: rgba(255, 255, 255, 0.1);
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* One shared corner radius for every rounded-* size utility, so cards, buttons,
+     badges, and panels all read as the same rectangular shape app-wide. Elements
+     that are meant to stay circular (avatars, dots, icon pills) use rounded-full,
+     which is unaffected by this. */
+  --radius: 0.25rem;
+  --radius-xs: var(--radius);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius);
+  --radius-xl: var(--radius);
+  --radius-2xl: var(--radius);
+  --radius-3xl: var(--radius);
+  --radius-4xl: var(--radius);
 }

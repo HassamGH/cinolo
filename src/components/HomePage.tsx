@@ -42,7 +42,7 @@ export function HomePage() {
     <div className="pb-20">
       <Hero candidates={trending.data} onSelect={onSelect} />
 
-      <div className="mt-8 flex flex-col gap-10 sm:mt-12 sm:gap-12">
+      <div className="mt-4 flex flex-col gap-10 sm:mt-6 sm:gap-12">
         <ContentRow title="Trending Now" items={trending.data} error={trending.error} onSelect={onSelect} />
         <div id="popular-movies">
           <ContentRow title="Popular Movies" items={popularMovies.data} error={popularMovies.error} onSelect={onSelect} />

@@ -4,6 +4,7 @@ import { useNavigation } from '../context/NavigationContext'
 import { useAsyncData } from '../hooks/useAsyncData'
 import { usePlayMedia } from '../hooks/usePlayMedia'
 import { useLoadingBar } from '../context/LoadingBarContext'
+import { useContinueWatching } from '../context/ContinueWatchingContext'
 import { getEpisodes, getSeriesDetails, getSeriesSeasons } from '../services/tmdb'
 import { DetailHeader } from './DetailHeader'
 import { SeasonSelector } from './SeasonSelector'
@@ -13,9 +14,11 @@ import { SimilarSection } from './SimilarSection'
 import type { Episode } from '../types/media'
 
 export function SeriesDetail({ id }: { id: number }) {
-  const { back, openPlayer, openMovie, openSeries } = useNavigation()
-  const { playSeriesFromStart, resolvingId } = usePlayMedia()
+  const { back, openMovie, openSeries } = useNavigation()
+  const { playEpisode, playSeriesFromStart, resolvingId } = usePlayMedia()
   const { start, stop } = useLoadingBar()
+  const { items: continueWatchingItems } = useContinueWatching()
+  const continueItem = continueWatchingItems.find((item) => item.key === `tv:${id}`)
 
   const { data: details, loading, error } = useAsyncData(() => getSeriesDetails(id), [id])
   const { data: seasons } = useAsyncData(() => getSeriesSeasons(id), [id])
@@ -70,7 +73,7 @@ export function SeriesDetail({ id }: { id: number }) {
         <button
           type="button"
           onClick={back}
-          className="cursor-pointer rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className="cursor-pointer rounded bg-white px-5 py-2.5 text-sm font-semibold text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           Back to Cinolo
         </button>
@@ -78,25 +81,25 @@ export function SeriesDetail({ id }: { id: number }) {
     )
   }
 
-  const playEpisode = (episode: Episode) => {
-    openPlayer({
-      type: 'episode',
-      seriesId: id,
-      seriesTitle: details.title,
-      season: episode.seasonNumber,
-      episode: episode.episodeNumber,
-      episodeTitle: episode.name,
-    })
+  const onHeaderPlay = () => {
+    if (continueItem) {
+      playEpisode(details, {
+        seasonNumber: continueItem.season ?? 1,
+        episodeNumber: continueItem.episode ?? 1,
+        name: continueItem.episodeTitle ?? '',
+      })
+    } else if (episodes && episodes.length > 0) {
+      playEpisode(details, episodes[0])
+    } else {
+      void playSeriesFromStart(details)
+    }
   }
 
-  const onHeaderPlay = () => {
-    if (episodes && episodes.length > 0) playEpisode(episodes[0])
-    else void playSeriesFromStart(id, details.title)
-  }
+  const playLabel = continueItem ? `Resume · S${continueItem.season} E${continueItem.episode}` : 'Play'
 
   return (
     <div className="pb-20">
-      <DetailHeader details={details} onPlay={onHeaderPlay} playLoading={resolvingId === id} />
+      <DetailHeader details={details} onPlay={onHeaderPlay} playLoading={resolvingId === id} playLabel={playLabel} />
 
       <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
         <section id="episodes-section" className="mt-2 scroll-mt-24">
@@ -137,7 +140,7 @@ export function SeriesDetail({ id }: { id: number }) {
             episodes={visibleEpisodes}
             loading={episodesLoading || selectedSeason === null}
             error={episodesError}
-            onPlay={playEpisode}
+            onPlay={(episode) => playEpisode(details, episode)}
           />
         </section>
 

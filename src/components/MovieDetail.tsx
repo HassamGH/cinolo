@@ -3,6 +3,7 @@ import { useNavigation } from '../context/NavigationContext'
 import { useAsyncData } from '../hooks/useAsyncData'
 import { usePlayMedia } from '../hooks/usePlayMedia'
 import { useLoadingBar } from '../context/LoadingBarContext'
+import { useContinueWatching } from '../context/ContinueWatchingContext'
 import { getMovieDetails } from '../services/tmdb'
 import { DetailHeader } from './DetailHeader'
 import { CastList } from './CastList'
@@ -12,7 +13,9 @@ export function MovieDetail({ id }: { id: number }) {
   const { back, openMovie, openSeries } = useNavigation()
   const { playMovie } = usePlayMedia()
   const { start, stop } = useLoadingBar()
+  const { items: continueWatchingItems } = useContinueWatching()
   const { data: details, loading, error } = useAsyncData(() => getMovieDetails(id), [id])
+  const isResuming = continueWatchingItems.some((item) => item.key === `movie:${id}`)
 
   useEffect(() => {
     if (!loading) return
@@ -30,7 +33,7 @@ export function MovieDetail({ id }: { id: number }) {
         <button
           type="button"
           onClick={back}
-          className="cursor-pointer rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className="cursor-pointer rounded bg-white px-5 py-2.5 text-sm font-semibold text-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           Back to Cinolo
         </button>
@@ -40,7 +43,7 @@ export function MovieDetail({ id }: { id: number }) {
 
   return (
     <div className="pb-20">
-      <DetailHeader details={details} onPlay={() => playMovie(details.id, details.title)} />
+      <DetailHeader details={details} onPlay={() => playMovie(details)} playLabel={isResuming ? 'Resume' : 'Play'} />
       <div className="mx-auto max-w-[1600px] px-4 sm:px-8">
         <CastList id={details.id} mediaType="movie" />
         <SimilarSection

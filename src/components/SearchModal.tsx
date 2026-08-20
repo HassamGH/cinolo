@@ -21,7 +21,7 @@ type SearchFilter = 'all' | 'movie' | 'tv'
 
 export function SearchModal({ open }: { open: boolean }) {
   const { closeSearch, openMovie, openSeries } = useNavigation()
-  const { play, resolvingId } = usePlayMedia()
+  const { play, isResuming, resolvingId } = usePlayMedia()
   const { start, stop } = useLoadingBar()
 
   const [query, setQuery] = useState('')
@@ -173,6 +173,7 @@ export function SearchModal({ open }: { open: boolean }) {
                   onPlay={play}
                   onSeeMore={onSeeMore}
                   playLoading={resolvingId === item.id}
+                  isResuming={isResuming(item)}
                 />
               ))}
             </div>
@@ -188,6 +189,7 @@ export function SearchModal({ open }: { open: boolean }) {
                   onPlay={play}
                   onSeeMore={onSeeMore}
                   playLoading={resolvingId === item.id}
+                  isResuming={isResuming(item)}
                 />
               ))}
             </div>

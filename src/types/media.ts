@@ -53,3 +53,19 @@ export interface Episode {
 export type PlayerSource =
   | { type: 'movie'; id: number; title: string }
   | { type: 'episode'; seriesId: number; seriesTitle: string; season: number; episode: number; episodeTitle: string }
+
+// Vidcore's embed exposes no progress/postMessage API (see services/vidcore.ts),
+// so this can only track *which* title/episode was last opened, not a seek
+// position within it.
+export interface ContinueWatchingItem {
+  key: string
+  mediaType: MediaType
+  id: number
+  title: string
+  posterPath: string | null
+  backdropPath: string | null
+  season?: number
+  episode?: number
+  episodeTitle?: string
+  updatedAt: number
+}

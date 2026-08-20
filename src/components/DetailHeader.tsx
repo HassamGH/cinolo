@@ -1,7 +1,8 @@
-import { List, Play, Sparkles } from 'lucide-react'
+import { List, Sparkles } from 'lucide-react'
 import { imageUrl } from '../services/tmdb'
 import { BackdropPlaceholder } from './ui/Placeholder'
 import { RatingBadge } from './ui/RatingBadge'
+import { PlayButton } from './ui/PlayButton'
 import { formatMetaLine, formatRuntime } from '../utils/format'
 import { BACKDROP_GRADIENT_CLASS } from '../utils/styleConstants'
 import type { MediaDetails } from '../types/media'
@@ -10,10 +11,11 @@ interface DetailHeaderProps {
   details: MediaDetails
   onPlay: () => void
   playLoading?: boolean
+  playLabel?: string
 }
 
-export function DetailHeader({ details, onPlay, playLoading = false }: DetailHeaderProps) {
-  const backdrop = imageUrl(details.backdropPath, 'original')
+export function DetailHeader({ details, onPlay, playLoading = false, playLabel = 'Play' }: DetailHeaderProps) {
+  const backdrop = imageUrl(details.backdropPath, 'w1280')
 
   const meta = formatMetaLine([
     details.year,
@@ -54,22 +56,14 @@ export function DetailHeader({ details, onPlay, playLoading = false }: DetailHea
             )}
 
             <div className="mt-6 flex items-center gap-3">
-              <button
-                type="button"
-                onClick={onPlay}
-                disabled={playLoading}
-                className="flex cursor-pointer items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-black transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                <Play size={16} className="fill-black" />
-                Play
-              </button>
+              <PlayButton label={playLabel} onClick={onPlay} disabled={playLoading} />
               {details.mediaType === 'tv' && (
                 <button
                   type="button"
                   onClick={() =>
                     document.getElementById('episodes-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                   }
-                  className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-transform hover:scale-105 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95"
+                  className="flex cursor-pointer items-center gap-1.5 rounded border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-transform hover:scale-105 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95"
                 >
                   <List size={16} />
                   Episodes
@@ -80,7 +74,7 @@ export function DetailHeader({ details, onPlay, playLoading = false }: DetailHea
                 onClick={() =>
                   document.getElementById('similar-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                 }
-                className="flex cursor-pointer items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-transform hover:scale-105 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95"
+                className="flex cursor-pointer items-center gap-1.5 rounded border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md transition-transform hover:scale-105 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-95"
               >
                 <Sparkles size={16} />
                 Similar

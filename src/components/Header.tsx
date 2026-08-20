@@ -53,7 +53,7 @@ export function Header({ onNavigate }: HeaderProps) {
             type="button"
             onClick={openSearch}
             aria-label="Search"
-            className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 ${FOCUS_RING}`}
+            className={`flex h-10 w-10 cursor-pointer items-center justify-center rounded text-white transition-colors hover:bg-white/10 ${FOCUS_RING}`}
           >
             <Search size={20} />
           </button>

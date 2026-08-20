@@ -2,9 +2,12 @@ import { Suspense, lazy } from 'react'
 import { NavigationProvider, useNavigation } from './context/NavigationContext'
 import { LoadingBarProvider } from './context/LoadingBarContext'
 import { ContinueWatchingProvider } from './context/ContinueWatchingContext'
+import { AppReadyProvider, useAppReady } from './context/AppReadyContext'
+import { OfflineProvider, useOffline } from './context/OfflineContext'
 import { Header } from './components/Header'
 import { HomePage } from './components/HomePage'
 import { VideoPlayer } from './components/VideoPlayer'
+import { AppLoader } from './components/ui/AppLoader'
 
 // Split out of the main bundle: each is only needed once its screen/modal is
 // actually opened, not on initial load.
@@ -20,6 +23,8 @@ function scrollToRow(id: string) {
 
 function AppShell() {
   const { state, goHome } = useNavigation()
+  const { ready } = useAppReady()
+  const { offline } = useOffline()
 
   const onNavigate = (target: 'home' | 'movies' | 'tv') => {
     if (target === 'home') {
@@ -38,7 +43,8 @@ function AppShell() {
 
   return (
     <div className="relative min-h-screen bg-background">
-      <Header onNavigate={onNavigate} />
+      {!ready && <AppLoader />}
+      {!offline && <Header onNavigate={onNavigate} />}
 
       <main>
         {state.screen.name === 'home' && <HomePage />}
@@ -58,13 +64,17 @@ function AppShell() {
 
 function App() {
   return (
-    <LoadingBarProvider>
-      <ContinueWatchingProvider>
-        <NavigationProvider>
-          <AppShell />
-        </NavigationProvider>
-      </ContinueWatchingProvider>
-    </LoadingBarProvider>
+    <AppReadyProvider>
+      <OfflineProvider>
+        <LoadingBarProvider>
+          <ContinueWatchingProvider>
+            <NavigationProvider>
+              <AppShell />
+            </NavigationProvider>
+          </ContinueWatchingProvider>
+        </LoadingBarProvider>
+      </OfflineProvider>
+    </AppReadyProvider>
   )
 }
 

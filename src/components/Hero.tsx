@@ -4,7 +4,6 @@ import { Info } from 'lucide-react'
 import { getMovieDetails, getSeriesDetails, imageUrl } from '../services/tmdb'
 import { usePlayMedia } from '../hooks/usePlayMedia'
 import { formatMetaLine, formatRuntime } from '../utils/format'
-import { HeroSkeleton } from './ui/Skeletons'
 import { PlayButton } from './ui/PlayButton'
 import { BACKDROP_GRADIENT_CLASS } from '../utils/styleConstants'
 import type { MediaDetails, MediaSummary } from '../types/media'
@@ -25,6 +24,7 @@ export function Hero({ candidates, onSelect }: HeroProps) {
   const { play, isResuming, resolvingId } = usePlayMedia()
   const dragStartX = useRef<number | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [dragX, setDragX] = useState(0)
 
   const active = slides[index] ?? null
 
@@ -67,8 +67,7 @@ export function Hero({ candidates, onSelect }: HeroProps) {
     return () => clearInterval(timer)
   }, [slides.length, paused])
 
-  if (!candidates) return <HeroSkeleton />
-  if (!active) return null
+  if (!candidates || !active) return null
 
   const backdrop = imageUrl(active.backdropPath, 'w1280')
   const meta = formatMetaLine([
@@ -77,6 +76,10 @@ export function Hero({ candidates, onSelect }: HeroProps) {
     ...(details?.genres.slice(0, 3).map((g) => g.name) ?? []),
   ])
   const slideKey = `${active.mediaType}-${active.id}`
+
+  // How far the slide visually follows the pointer during a drag, clamped
+  // so it doesn't trail off past a fixed offset even on a very long drag.
+  const MAX_DRAG_OFFSET_PX = 140
 
   const onPointerDown = (e: PointerEvent<HTMLElement>) => {
     // Let real controls (Play, More Info, dot indicators) work normally —
@@ -87,19 +90,29 @@ export function Hero({ candidates, onSelect }: HeroProps) {
     setPaused(true)
     e.currentTarget.setPointerCapture(e.pointerId)
   }
+  const onPointerMove = (e: PointerEvent<HTMLElement>) => {
+    if (dragStartX.current === null) return
+    const delta = e.clientX - dragStartX.current
+    setDragX(Math.max(-MAX_DRAG_OFFSET_PX, Math.min(MAX_DRAG_OFFSET_PX, delta)))
+  }
   const onPointerUp = (e: PointerEvent<HTMLElement>) => {
     if (dragStartX.current !== null) {
       const delta = e.clientX - dragStartX.current
-      if (Math.abs(delta) > 60) (delta > 0 ? prev() : next())
+      if (Math.abs(delta) > 60) {
+        if (delta > 0) prev()
+        else next()
+      }
     }
     dragStartX.current = null
     setIsDragging(false)
     setPaused(false)
+    setDragX(0)
   }
   const onPointerCancel = () => {
     dragStartX.current = null
     setIsDragging(false)
     setPaused(false)
+    setDragX(0)
   }
 
   return (
@@ -108,17 +121,24 @@ export function Hero({ candidates, onSelect }: HeroProps) {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
     >
-      <div className="absolute inset-0">
+      <div
+        className="absolute inset-0"
+        style={{
+          transform: `translateX(${dragX}px)`,
+          transition: isDragging ? 'none' : 'transform 300ms ease-out',
+        }}
+      >
         {backdrop ? (
           <img
             key={slideKey}
             src={backdrop}
             alt=""
             draggable={false}
-            className="h-full w-full object-cover object-top select-none"
+            className="h-full w-full animate-[hero-backdrop-in_400ms_ease] object-cover object-top select-none"
             fetchPriority="high"
           />
         ) : (
@@ -127,7 +147,13 @@ export function Hero({ candidates, onSelect }: HeroProps) {
         <div className={`absolute inset-0 ${BACKDROP_GRADIENT_CLASS}`} />
       </div>
 
-      <div className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-4 pb-16 sm:px-8 sm:pb-24">
+      <div
+        className="relative z-10 mx-auto flex h-full max-w-[1600px] flex-col justify-end px-4 pb-16 sm:px-8 sm:pb-24"
+        style={{
+          transform: `translateX(${dragX}px)`,
+          transition: isDragging ? 'none' : 'transform 300ms ease-out',
+        }}
+      >
         <div key={slideKey} className="max-w-2xl">
           <h1 className="text-3xl leading-tight font-extrabold text-white drop-shadow-lg sm:text-5xl lg:text-6xl">
             {active.title}

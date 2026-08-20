@@ -1,7 +1,6 @@
 import { Play } from 'lucide-react'
 import { imageUrl } from '../services/tmdb'
 import { BackdropPlaceholder } from './ui/Placeholder'
-import { EpisodeSkeleton } from './ui/Skeletons'
 import { formatRuntime } from '../utils/format'
 import type { Episode } from '../types/media'
 
@@ -13,7 +12,7 @@ interface EpisodeListProps {
 }
 
 export function EpisodeList({ episodes, loading, error, onPlay }: EpisodeListProps) {
-  if (loading) return <EpisodeSkeleton />
+  if (loading) return null
   if (error) return <p className="text-sm text-muted">Couldn't load episodes right now.</p>
   if (!episodes || episodes.length === 0) return <p className="text-sm text-muted">No episodes available yet.</p>
 

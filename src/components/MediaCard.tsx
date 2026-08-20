@@ -30,7 +30,14 @@ export function MediaCard({ item, onSelect, className = '' }: MediaCardProps) {
         className="relative block aspect-2/3 w-full cursor-pointer overflow-hidden rounded-lg bg-card shadow-lg shadow-black/40 transition-transform duration-300 ease-out will-change-transform hover:scale-105 hover:shadow-2xl hover:shadow-black/60 focus-visible:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
       >
         {poster ? (
-          <img src={poster} alt={item.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+          <img
+            src={poster}
+            alt={item.title}
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+            className="h-full w-full object-cover"
+          />
         ) : (
           <PosterPlaceholder className="h-full w-full" />
         )}

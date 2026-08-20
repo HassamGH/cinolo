@@ -3,6 +3,10 @@
 // in middleware.ts: middleware.ts runs in the Edge runtime, which bundles everything into one
 // snippet with no filesystem access, so an actual .html file can't be read at request time — this
 // is the closest equivalent, a self-contained document with no external CSS/font/image requests.
+//
+// Styled to match src/components/ui/ApiErrorPage.tsx (the same full-screen takeover shown when
+// the TMDB proxy is unreachable) — same logo, radial gradient, icon/heading/message/button
+// structure — hand-written in plain CSS since this doesn't go through Tailwind.
 export const UNAUTHORIZED_PAGE = `<!doctype html>
 <html lang="en">
 <head>
@@ -16,78 +20,89 @@ export const UNAUTHORIZED_PAGE = `<!doctype html>
   body {
     margin: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    min-height: 100%;
+    padding: 1.5rem;
     background: #050505;
-    background-image: radial-gradient(circle at 50% 0%, rgba(229, 9, 20, 0.12), transparent 60%);
+    background-image: radial-gradient(circle at 50% 32%, rgba(229, 9, 20, 0.14), transparent 60%);
     color: #f5f5f5;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  }
-  .card {
-    width: 100%;
-    max-width: 22rem;
-    margin: 1.5rem;
-    padding: 2.5rem 2rem;
     text-align: center;
-    background: #0f0f0f;
-    border: 1px solid #232323;
-    border-radius: 1rem;
   }
   .logo {
-    width: 3.5rem;
-    height: 3.5rem;
-    margin: 0 auto 1.25rem;
+    width: 4rem;
+    height: 4rem;
+    margin: 0 0 1.5rem;
     display: block;
-    border-radius: 1rem;
   }
-  .wordmark {
-    font-size: 1.125rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    margin: 0 0 0.75rem;
+  .icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0 0 1.25rem;
+    color: #a0a0a0;
+    opacity: 0.5;
   }
-  .divider {
-    width: 2rem;
-    height: 2px;
-    background: #e50914;
-    border: none;
-    margin: 0 auto 1rem;
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
   }
   .message {
-    color: #9a9a9a;
-    font-size: 0.9rem;
-    line-height: 1.55;
-    margin: 0 0 1.5rem;
+    color: #a0a0a0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0.75rem 0 0;
+    max-width: 24rem;
   }
   .retry {
-    display: inline-block;
-    padding: 0.6rem 1.5rem;
-    background: #e50914;
-    color: #fff;
-    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    padding: 0.75rem 1.5rem;
+    background: #fff;
+    color: #000;
+    font-size: 0.875rem;
     font-weight: 600;
     text-decoration: none;
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
+    transition: transform 0.15s ease;
   }
-  .retry:hover { background: #c40812; }
+  .retry:hover { transform: scale(1.05); }
+  .retry:active { transform: scale(0.95); }
+  .retry svg { width: 1rem; height: 1rem; }
 </style>
 </head>
 <body>
-  <div class="card">
-    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="9" fill="#E50914" />
-      <path
-        d="M 23.5 12 A 8 8 0 1 0 20 24"
-        fill="none"
-        stroke="white"
-        stroke-width="4.4"
-        stroke-linecap="round"
-      />
+  <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+    <rect width="32" height="32" rx="9" fill="#E50914" />
+    <path
+      d="M 23.5 12 A 8 8 0 1 0 20 24"
+      fill="none"
+      stroke="white"
+      stroke-width="4.4"
+      stroke-linecap="round"
+    />
+  </svg>
+
+  <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+
+  <h1>Site is private</h1>
+  <p class="message">This site is private. Enter your credentials when prompted to continue.</p>
+
+  <a class="retry" href="/">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
     </svg>
-    <p class="wordmark">CINOLO</p>
-    <hr class="divider" />
-    <p class="message">This site is private. Enter your credentials when prompted to continue.</p>
-    <a class="retry" href="/">Try again</a>
-  </div>
+    Try again
+  </a>
 </body>
 </html>`;

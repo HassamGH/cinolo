@@ -1,11 +1,22 @@
+import { useEffect } from 'react'
 import { User } from 'lucide-react'
 import { useAsyncData } from '../hooks/useAsyncData'
+import { useLoadingBar } from '../context/LoadingBarContext'
 import { getCast, imageUrl } from '../services/tmdb'
-import { CastSkeleton } from './ui/Skeletons'
 import type { MediaType } from '../types/media'
 
 export function CastList({ id, mediaType }: { id: number; mediaType: MediaType }) {
   const { data: cast, loading, error } = useAsyncData(() => getCast(id, mediaType), [id, mediaType])
+  const { start, stop } = useLoadingBar()
+
+  useEffect(() => {
+    if (!loading) return
+    start()
+    return () => stop()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading])
+
+  if (loading) return null
 
   return (
     <section className="mt-10">
@@ -14,15 +25,13 @@ export function CastList({ id, mediaType }: { id: number; mediaType: MediaType }
         Actors
       </h2>
 
-      {loading && <CastSkeleton />}
-
       {error && <p className="text-sm text-muted">Couldn't load cast right now.</p>}
 
-      {!loading && !error && cast && cast.length === 0 && (
+      {!error && cast && cast.length === 0 && (
         <p className="text-sm text-muted">No cast information available.</p>
       )}
 
-      {!loading && cast && cast.length > 0 && (
+      {!error && cast && cast.length > 0 && (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {cast.map((member) => {
             const photo = imageUrl(member.profilePath, 'w185')

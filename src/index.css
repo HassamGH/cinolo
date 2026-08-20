@@ -26,3 +26,15 @@
   --radius-3xl: var(--radius);
   --radius-4xl: var(--radius);
 }
+
+/* Crossfade for Hero's backdrop on slide change — the <img> remounts (keyed
+   by slide) rather than swapping `src`, so a CSS transition has no "from"
+   state to animate from; an animation plays on mount instead. */
+@keyframes hero-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

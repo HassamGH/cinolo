@@ -9,7 +9,7 @@ const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 
 if (!TMDB_API_KEY) {
   console.warn(
-    '[zeno-server] TMDB_API_KEY is not set. Copy .env.example to .env and add your key from https://www.themoviedb.org/settings/api'
+    '[cinolo-server] TMDB_API_KEY is not set. Copy .env.example to .env and add your key from https://www.themoviedb.org/settings/api'
   )
 }
 
@@ -49,7 +49,7 @@ app.get('/api/tmdb/*splat', async (req, res) => {
     }
     res.status(upstream.status).json(body)
   } catch (err) {
-    console.error('[zeno-server] TMDB request failed', err)
+    console.error('[cinolo-server] TMDB request failed', err)
     res.status(502).json({ error: 'Upstream TMDB request failed' })
   }
 })
@@ -59,5 +59,5 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`[zeno-server] TMDB proxy listening on http://localhost:${PORT}`)
+  console.log(`[cinolo-server] TMDB proxy listening on http://localhost:${PORT}`)
 })

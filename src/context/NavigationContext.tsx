@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { getCast, getEpisodes, getMovieDetails, getRecommendedFor, getSeriesDetails, getSeriesSeasons } from '../services/tmdb'
+import { useLoadingBar } from './LoadingBarContext'
 import type { PlayerSource } from '../types/media'
 
 export type Screen = { name: 'home' } | { name: 'movie'; id: number } | { name: 'series'; id: number }
@@ -47,6 +49,8 @@ interface NavigationContextValue {
 const NavigationContext = createContext<NavigationContextValue | null>(null)
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
+  const { start, stop } = useLoadingBar()
+
   // Restores the movie/series page a hard reload (or a shared/bookmarked
   // link) landed on, instead of always dropping back to Home.
   const [state, setState] = useState<NavState>(() => ({
@@ -101,13 +105,55 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const openSearch = useCallback(() => push({ ...state, searchOpen: true }), [push, state])
   const closeSearch = useCallback(() => goBackOrReset({ ...state, searchOpen: false }), [goBackOrReset, state])
 
+  // Prefetch everything the destination screen renders on arrival — details,
+  // cast, similar titles, and (for series) the first season's episodes —
+  // plus its lazy-loaded chunk, all landing in tmdbClient's cache before the
+  // screen actually switches. The current page stays put — with
+  // TopLoadingBar indicating progress — until the destination can render
+  // fully populated in one shot, instead of its sections popping in one by
+  // one as their own fetches resolve after mount. The chunk import is a
+  // static literal, so Vite resolves it to the same module App.tsx's lazy()
+  // loads; running it here just warms the cache so the waits overlap
+  // instead of the code-split chunk only starting to download after data
+  // fetches already finished. On failure, navigate anyway; the destination
+  // surfaces its own "couldn't be loaded" state.
   const openMovie = useCallback(
-    (id: number) => push({ screen: { name: 'movie', id }, searchOpen: false, player: null }),
-    [push]
+    (id: number) => {
+      start()
+      Promise.all([
+        import('../components/MovieDetail'),
+        getMovieDetails(id),
+        getCast(id, 'movie'),
+        getRecommendedFor(id, 'movie'),
+      ])
+        .catch(() => {})
+        .finally(() => {
+          push({ screen: { name: 'movie', id }, searchOpen: false, player: null })
+          stop()
+        })
+    },
+    [push, start, stop]
   )
   const openSeries = useCallback(
-    (id: number) => push({ screen: { name: 'series', id }, searchOpen: false, player: null }),
-    [push]
+    (id: number) => {
+      start()
+      Promise.all([
+        import('../components/SeriesDetail'),
+        getSeriesDetails(id),
+        getCast(id, 'tv'),
+        getRecommendedFor(id, 'tv'),
+        getSeriesSeasons(id).then((seasons) => {
+          const defaultSeason = seasons.find((s) => s.seasonNumber === 1)?.seasonNumber ?? seasons[0]?.seasonNumber
+          return defaultSeason !== undefined ? getEpisodes(id, defaultSeason) : null
+        }),
+      ])
+        .catch(() => {})
+        .finally(() => {
+          push({ screen: { name: 'series', id }, searchOpen: false, player: null })
+          stop()
+        })
+    },
+    [push, start, stop]
   )
 
   const goHome = useCallback(() => push(HOME), [push])

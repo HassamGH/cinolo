@@ -41,7 +41,7 @@ src/
     Header, Hero, ContentRow, MediaCard, SearchModal, SearchResultItem,
     MovieDetail, SeriesDetail, DetailHeader, SeasonSelector, EpisodeList,
     CastList, SimilarSection ("You may like"), VideoPlayer
-    ui/  Dropdown, TopLoadingBar, Skeletons, Placeholder, RatingBadge, CinoloMark
+    ui/  Dropdown, TopLoadingBar, ApiErrorPage, AppLoader, Placeholder, RatingBadge, CinoloMark
   utils/
     format.ts           runtime/rating/meta-line formatting
     styleConstants.ts    shared Tailwind arbitrary-value strings (e.g. the

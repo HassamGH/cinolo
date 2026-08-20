@@ -1,11 +1,14 @@
 import { next } from '@vercel/edge';
-import { UNAUTHORIZED_PAGE } from './UNAUTHORIZED_PAGE';
+import { UNAUTHORIZED_PAGE } from './UNAUTHORIZED_PAGE.js';
 
 export const config = {
-  // Protect everything except the PWA manifest/service worker/icons,
-  // which browsers fetch outside the normal credentialed flow.
+  // Protect everything except the PWA manifest/service worker/icons (which
+  // browsers fetch outside the normal credentialed flow) and the TMDB proxy
+  // (background fetch() calls from the SPA don't reliably resend cached
+  // Basic-Auth credentials, and the proxy only serves public movie/show
+  // metadata anyway).
   matcher: [
-    '/((?!manifest\\.webmanifest$|sw\\.js$|registerSW\\.js$|favicon\\.svg$|apple-touch-icon\\.png$|pwa-192x192\\.png$|pwa-512x512\\.png$|maskable-icon-512x512\\.png$).*)',
+    '/((?!manifest\\.webmanifest$|sw\\.js$|registerSW\\.js$|workbox-.*\\.js$|favicon\\.svg$|apple-touch-icon\\.png$|pwa-192x192\\.png$|pwa-512x512\\.png$|maskable-icon-512x512\\.png$|api/).*)',
   ],
 };
 

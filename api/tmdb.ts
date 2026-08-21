@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { logRequestError } from '../server/logger'
+import { logRequestError } from '../server/logger.js'
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 // Comfortably under vercel.json's 10s maxDuration for this function, so we

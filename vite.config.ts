@@ -10,6 +10,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // We register the SW ourselves in main.tsx (with a reload-on-update
+      // listener) so an already-open installed PWA actually picks up a new
+      // build instead of running the old cached shell indefinitely.
+      injectRegister: false,
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       devOptions: {
         enabled: true,

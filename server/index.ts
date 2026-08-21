@@ -1,11 +1,13 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import { logRequestError } from './logger'
 
 const app = express()
 const PORT = Number(process.env.PORT) || 8787
 const TMDB_API_KEY = process.env.TMDB_API_KEY
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
+const TMDB_TIMEOUT_MS = 8000
 
 if (!TMDB_API_KEY) {
   console.warn(
@@ -32,6 +34,8 @@ app.get('/api/tmdb/*splat', async (req, res) => {
   for (const [key, value] of Object.entries(req.query)) {
     if (typeof value === 'string') url.searchParams.set(key, value)
   }
+  // Captured before api_key is attached, so it never leaks into a log line.
+  const displayPath = `/api/tmdb/${path}${url.search}`
   url.searchParams.set('api_key', TMDB_API_KEY)
 
   const cacheKey = url.toString()
@@ -41,16 +45,29 @@ app.get('/api/tmdb/*splat', async (req, res) => {
     return
   }
 
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), TMDB_TIMEOUT_MS)
+  const startedAt = Date.now()
   try {
-    const upstream = await fetch(url)
+    const upstream = await fetch(url, { signal: controller.signal })
     const body = await upstream.json()
     if (upstream.ok) {
       cache.set(cacheKey, { expires: Date.now() + CACHE_TTL_MS, body })
     }
     res.status(upstream.status).json(body)
   } catch (err) {
-    console.error('[cinolo-server] TMDB request failed', err)
-    res.status(502).json({ error: 'Upstream TMDB request failed' })
+    const timedOut = err instanceof Error && err.name === 'AbortError'
+    const status = timedOut ? 504 : 502
+    logRequestError({
+      method: req.method,
+      path: displayPath,
+      status,
+      durationMs: Date.now() - startedAt,
+      tag: timedOut ? 'TIMEOUT' : 'FAILED',
+    })
+    res.status(status).json({ error: timedOut ? 'Upstream TMDB request timed out' : 'Upstream TMDB request failed' })
+  } finally {
+    clearTimeout(timeout)
   }
 })
 

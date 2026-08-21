@@ -1,6 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { logRequestError } from '../server/logger'
 
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3'
+// Comfortably under vercel.json's 10s maxDuration for this function, so we
+// fail cleanly with our own 504 instead of the platform killing the
+// invocation outright and returning an opaque FUNCTION_INVOCATION_TIMEOUT.
+const TMDB_TIMEOUT_MS = 8000
 
 // Second-tier cache only. Serverless instances are ephemeral and not shared
 // between concurrent invocations, so most requests will miss this on a
@@ -57,6 +62,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // doesn't silently invalidate every cached entry — and so the secret never
   // ends up as a Map key.
   const cacheKey = url.toString()
+  // Captured before api_key is attached, so it never leaks into a log line.
+  const displayPath = `/api/tmdb/${path}${url.search}`
   url.searchParams.set('api_key', TMDB_API_KEY)
 
   const cached = cache.get(cacheKey)
@@ -67,9 +74,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return
   }
 
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), TMDB_TIMEOUT_MS)
+  const startedAt = Date.now()
   try {
     const upstream = await fetch(url, {
       headers: { Accept: 'application/json' },
+      signal: controller.signal,
     })
 
     const contentType = upstream.headers.get('content-type') ?? ''
@@ -99,8 +110,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     res.status(upstream.status).json(body)
   } catch (err) {
-    console.error('[zeno-api] TMDB request failed', err)
+    const timedOut = err instanceof Error && err.name === 'AbortError'
+    const status = timedOut ? 504 : 502
+    logRequestError({
+      method: req.method ?? 'GET',
+      path: displayPath,
+      status,
+      durationMs: Date.now() - startedAt,
+      tag: timedOut ? 'TIMEOUT' : 'FAILED',
+    })
     res.setHeader('Cache-Control', 'no-store')
-    res.status(502).json({ error: 'Upstream TMDB request failed' })
+    res.status(status).json({ error: timedOut ? 'Upstream TMDB request timed out' : 'Upstream TMDB request failed' })
+  } finally {
+    clearTimeout(timeout)
   }
 }

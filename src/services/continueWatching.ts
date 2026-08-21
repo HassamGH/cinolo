@@ -2,6 +2,7 @@ import type { ContinueWatchingItem } from '../types/media'
 
 const STORAGE_KEY = 'cinolo:continue-watching'
 const MAX_ITEMS = 20
+const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000
 
 function safeParse(raw: string | null): ContinueWatchingItem[] {
   if (!raw) return []
@@ -13,8 +14,19 @@ function safeParse(raw: string | null): ContinueWatchingItem[] {
   }
 }
 
+function pruneExpired(items: ContinueWatchingItem[]): ContinueWatchingItem[] {
+  const cutoff = Date.now() - MAX_AGE_MS
+  return items.filter((item) => item.updatedAt >= cutoff)
+}
+
+// Prunes anything untouched for a week and writes the result back, so an
+// expired entry is actually deleted from storage (not just hidden from this
+// read) the next time anything touches Continue Watching.
 export function loadContinueWatching(): ContinueWatchingItem[] {
-  return safeParse(window.localStorage.getItem(STORAGE_KEY)).sort((a, b) => b.updatedAt - a.updatedAt)
+  const all = safeParse(window.localStorage.getItem(STORAGE_KEY))
+  const pruned = pruneExpired(all)
+  if (pruned.length !== all.length) persist(pruned)
+  return pruned.sort((a, b) => b.updatedAt - a.updatedAt)
 }
 
 function persist(items: ContinueWatchingItem[]) {

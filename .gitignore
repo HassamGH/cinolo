@@ -27,3 +27,8 @@ dev-dist
 
 .vercel
 .claude
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/

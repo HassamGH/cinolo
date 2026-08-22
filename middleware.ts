@@ -40,19 +40,44 @@ async function timingSafeEqual(a: string, b: string): Promise<boolean> {
   return diff === 0;
 }
 
-// Basic Auth carries "username:password"; there's one shared site password
-// and no real users, so the username half is ignored and only the password
-// half is checked.
-function extractPassword(decoded: string): string {
+// Basic Auth carries "username:password" — each entry in SITE_USERS is one
+// person's login, so both halves matter.
+function extractCredentials(decoded: string): { username: string; password: string } {
   const separatorIndex = decoded.indexOf(':');
-  return separatorIndex === -1 ? decoded : decoded.slice(separatorIndex + 1);
+  if (separatorIndex === -1) return { username: decoded, password: '' };
+  return { username: decoded.slice(0, separatorIndex), password: decoded.slice(separatorIndex + 1) };
 }
 
+type SiteUsers = Record<string, string>;
+
+// SITE_USERS is a JSON object mapping username to password, e.g.
+// {"alice":"hunter2","bob":"correct horse battery staple"}.
+function parseSiteUsers(raw: string): SiteUsers | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) return null;
+  const entries = Object.entries(parsed as Record<string, unknown>);
+  if (entries.length === 0) return null;
+  if (entries.some(([, password]) => typeof password !== 'string' || password.length === 0)) return null;
+  return parsed as SiteUsers;
+}
+
+// Never a real user's password — just something to hash against so an
+// unknown username costs the same as a wrong one. Its value doesn't need to
+// be secret: a match against it is never treated as a successful login (see
+// the `expectedPassword !== undefined` check below).
+const DUMMY_PASSWORD = 'no-such-user-timing-decoy';
+
 export default async function middleware(request: Request): Promise<Response | undefined> {
-  const sitePassword = process.env.SITE_PASSWORD;
-  if (!sitePassword) {
+  const rawSiteUsers = process.env.SITE_USERS;
+  const siteUsers = rawSiteUsers ? parseSiteUsers(rawSiteUsers) : null;
+  if (!siteUsers) {
     // Fail closed: a misconfigured deployment must never silently let everyone through.
-    return new Response('Site is not configured for authentication. Set SITE_PASSWORD.', {
+    return new Response('Site is not configured for authentication. Set SITE_USERS.', {
       status: 500,
       headers: { 'content-type': 'text/plain', 'cache-control': 'no-store' },
     });
@@ -66,8 +91,12 @@ export default async function middleware(request: Request): Promise<Response | u
     } catch {
       return unauthorized();
     }
-    const password = extractPassword(decoded);
-    if (await timingSafeEqual(password, sitePassword)) {
+    const { username, password } = extractCredentials(decoded);
+    const expectedPassword = siteUsers[username];
+    // Always run the hash comparison, known user or not, so "wrong
+    // password" and "no such user" take the same amount of time.
+    const matches = await timingSafeEqual(password, expectedPassword ?? DUMMY_PASSWORD);
+    if (expectedPassword !== undefined && matches) {
       return next();
     }
   }

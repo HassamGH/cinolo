@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
+import { disableInspect } from './utils/disableInspect'
 import './index.css'
 import App from './App.tsx'
 
@@ -8,6 +9,8 @@ import App from './App.tsx'
 // fresh navigation, so a new build can sit precached and unused forever
 // unless we force a reload once its service worker actually takes over.
 registerSW({ immediate: true })
+
+if (import.meta.env.PROD) disableInspect()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

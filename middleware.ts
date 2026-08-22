@@ -1,5 +1,5 @@
 import { next } from '@vercel/edge';
-import { UNAUTHORIZED_PAGE } from './UNAUTHORIZED_PAGE.js';
+import { CONFIG_ERROR_PAGE, UNAUTHORIZED_PAGE } from './UNAUTHORIZED_PAGE.js';
 
 export const config = {
   // Protect everything except the PWA manifest/service worker/icons (which
@@ -77,9 +77,9 @@ export default async function middleware(request: Request): Promise<Response | u
   const siteUsers = rawSiteUsers ? parseSiteUsers(rawSiteUsers) : null;
   if (!siteUsers) {
     // Fail closed: a misconfigured deployment must never silently let everyone through.
-    return new Response('Site is not configured for authentication. Set SITE_USERS.', {
+    return new Response(CONFIG_ERROR_PAGE, {
       status: 500,
-      headers: { 'content-type': 'text/plain', 'cache-control': 'no-store' },
+      headers: { 'content-type': 'text/html; charset=UTF-8', 'cache-control': 'no-store' },
     });
   }
 

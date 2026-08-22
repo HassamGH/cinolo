@@ -19,7 +19,7 @@ export function ApiErrorPage({
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4 text-center">
       <div
         className="pointer-events-none absolute inset-0"
-        style={{ backgroundImage: 'radial-gradient(circle at 50% 32%, rgba(229, 9, 20, 0.14), transparent 60%)' }}
+        style={{ backgroundImage: 'linear-gradient(to bottom, rgba(229, 9, 20, 0.14), transparent 60%)' }}
       />
 
       <div className="relative flex flex-col items-center">
